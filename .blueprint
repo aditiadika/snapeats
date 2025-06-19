@@ -1,0 +1,32 @@
+created:
+    - database/factories/EntityFactory.php
+    - database/factories/CategoryFactory.php
+    - database/factories/ProductFactory.php
+    - database/factories/BranchFactory.php
+    - database/factories/TableFactory.php
+    - database/factories/OrderFactory.php
+    - database/factories/OrderItemFactory.php
+    - database/migrations/2025_06_19_015959_create_entities_table.php
+    - database/migrations/2025_06_19_020000_create_categories_table.php
+    - database/migrations/2025_06_19_020001_create_products_table.php
+    - database/migrations/2025_06_19_020002_create_branches_table.php
+    - database/migrations/2025_06_19_020003_create_tables_table.php
+    - database/migrations/2025_06_19_020004_create_orders_table.php
+    - database/migrations/2025_06_19_020005_create_order_items_table.php
+    - database/migrations/2025_06_19_020006_create_branch_product_table.php
+    - app/Models/Entity.php
+    - app/Models/Category.php
+    - app/Models/Product.php
+    - app/Models/Branch.php
+    - app/Models/Table.php
+    - app/Models/Order.php
+    - app/Models/OrderItem.php
+models:
+    User: { name: string, email: string, email_verified_at: 'timestamp nullable', password: string, remember_token: 'string:100 nullable' }
+    Entity: { name: string, description: text }
+    Category: { entity_id: 'foreignId:entities', name: string, description: 'text nullable' }
+    Product: { entity_id: 'foreignId:entities', category_id: 'foreignId:categories', name: string, description: 'text nullable', price: 'decimal:10,2', image_path: 'string nullable', is_active: 'boolean default:true', relationships: { belongsToMany: Branch } }
+    Branch: { entity_id: 'foreignId:entities', name: string, address: text, phone: string, relationships: { belongsToMany: Product } }
+    Table: { entity_id: 'foreignId:entities', branch_id: 'foreignId:branches', table_number: string, qr_code: 'string unique', capacity: 'integer default:2', is_available: 'boolean default:true' }
+    Order: { entity_id: 'foreignId:entities', branch_id: 'foreignId:branches', table_id: 'foreignId:tables', customer_name: 'string nullable', status: "string default:'pending'", total_amount: 'decimal:10,2', notes: 'text nullable' }
+    OrderItem: { order_id: 'foreignId:orders', product_id: 'foreignId:products', quantity: integer, unit_price: 'decimal:10,2', notes: 'text nullable' }

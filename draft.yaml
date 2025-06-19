@@ -1,0 +1,52 @@
+models:
+  Entity:
+    name: string
+    description: text
+
+  Category:
+    entity_id: foreignId:entities
+    name: string
+    description: text nullable
+
+  Product:
+    entity_id: foreignId:entities
+    category_id: foreignId:categories
+    name: string
+    description: text nullable
+    price: decimal:10,2
+    image_path: string nullable
+    is_active: boolean default:true
+    relationships:
+      belongsToMany: Branch
+
+  Branch:
+    entity_id: foreignId:entities
+    name: string
+    address: text
+    phone: string
+    relationships:
+      belongsToMany: Product
+
+  Table:
+    entity_id: foreignId:entities
+    branch_id: foreignId:branches
+    table_number: string
+    qr_code: string unique
+    capacity: integer default:2
+    is_available: boolean default:true
+
+  Order:
+    entity_id: foreignId:entities
+    branch_id: foreignId:branches
+    table_id: foreignId:tables
+    customer_name: string nullable
+    status: string default:'pending'
+    total_amount: decimal:10,2
+    notes: text nullable
+
+  OrderItem:
+    order_id: foreignId:orders
+    product_id: foreignId:products
+    quantity: integer
+    unit_price: decimal:10,2
+    notes: text nullable
