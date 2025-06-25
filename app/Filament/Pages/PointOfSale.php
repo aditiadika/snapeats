@@ -2,18 +2,37 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Branch;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Table;
 use App\Models\User;
 use Filament\Pages\Page;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Collection;
 
 class PointOfSale extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
-    protected static ?string $navigationLabel = 'POS';
     protected static string $view = 'filament.pages.point-of-sale';
+
+    public function getTitle(): string | Htmlable
+    {
+        $user = auth()->user();
+        $branchId = session('pos_selected_branch') ?? $user->default_branch_id ?? null;
+
+        if ($branchId && $branch = \App\Models\Branch::find($branchId)) {
+            return $branch->name;
+        }
+
+        return 'Point of Sale';
+    }
+
+
+    public bool $showBranchModal = true;
+    public $branches = [];
+    public ?int $selectedBranchId = null;
 
     public $search = '';
     public $customerName;
@@ -24,10 +43,25 @@ class PointOfSale extends Page
     public $tax = 0;
     public $total = 0;
 
+    public $types = ['Dine in', 'Take away', 'Delivery'];
+    public string $selectedType = '';
+
+    public $tables;
+    public $selectedTableId = null;
+
+    public function selectBranch($branchId)
+    {
+        session()->put('pos_selected_branch', $branchId);
+        $this->selectedBranchId = $branchId;
+        $this->showBranchModal = false;
+        $this->loadProducts();
+        $this->loadTables();
+    }
+
     public function mount(): void
     {
-        $this->loadProducts();
         $this->calculateTotals();
+        $this->branches = Branch::all();
     }
 
     public function updatedSearch(): void
@@ -37,9 +71,15 @@ class PointOfSale extends Page
 
     public function loadProducts(): void
     {
-        $this->products = Product::when($this->search, function ($query) {
-            $query->where('name', 'like', '%' . $this->search . '%');
-        })->get();
+        $branch = Branch::findOrFail($this->selectedBranchId);
+        $this->products = $this->selectedBranchId ? $branch->products()->get() :
+            [];
+    }
+
+    public function loadTables(): void
+    {
+        $this->tables = $this->selectedBranchId ? Table::query()->where('branch_id', $this->selectedBranchId)->get() :
+            [];
     }
 
     public function addToCart(int $productId): void
