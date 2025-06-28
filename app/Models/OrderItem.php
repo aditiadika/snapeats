@@ -18,7 +18,7 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'quantity',
-        'unit_price',
+        'price',
         'notes',
     ];
 
@@ -31,7 +31,7 @@ class OrderItem extends Model
     {
         return [
             'id' => 'integer',
-            'unit_price' => 'decimal:2',
+            'price' => 'decimal:2',
         ];
     }
 }

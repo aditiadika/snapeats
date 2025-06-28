@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Branch;
+use App\Models\Entity;
+use App\Models\Table;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,9 +16,10 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('entity_id');
-            $table->string('branch_id');
-            $table->string('table_id');
+            $table->string('trx_no')->unique();
+            $table->foreignIdFor(Entity::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Branch::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Table::class)->nullable()->constrained()->cascadeOnDelete();
             $table->string('customer_name')->nullable();
             $table->string('status')->default('pending');
             $table->decimal('total_amount', 10, 2);

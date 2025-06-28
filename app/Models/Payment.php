@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Order extends Model
+class Payment extends Model
 {
     use HasFactory;
 
@@ -15,14 +15,12 @@ class Order extends Model
      * @var array
      */
     protected $fillable = [
+        'order_id',
         'trx_no',
-        'entity_id',
-        'branch_id',
-        'table_id',
-        'customer_name',
-        'status',
-        'total_amount',
-        'notes',
+        'total',
+        'payment_method',
+        'split_cash',
+        'split_qris',
     ];
 
     /**
@@ -34,12 +32,7 @@ class Order extends Model
     {
         return [
             'id' => 'integer',
-            'total_amount' => 'decimal:2',
+            'total' => 'decimal:2',
         ];
-    }
-
-    public function items()
-    {
-        return $this->hasMany(OrderItem::class);
     }
 }

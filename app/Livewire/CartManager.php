@@ -10,14 +10,17 @@ use Livewire\Component;
 class CartManager extends Component
 {
     public $tableId;
+
     public $carts = [];
+
     public $showCart = false;
+
     public $notes = '';
 
     protected $listeners = [
         'addToCart' => 'handleAddToCart',
         'showCart' => 'showCart',
-        'cartUpdated' => 'refreshCart'
+        'cartUpdated' => 'refreshCart',
     ];
 
     public function mount($tableId)
@@ -51,7 +54,7 @@ class CartManager extends Component
 
         $cart = Cart::firstOrNew([
             'table_id' => $this->tableId,
-            'product_id' => $productId
+            'product_id' => $productId,
         ]);
 
         if ($cart->exists) {
@@ -77,6 +80,7 @@ class CartManager extends Component
     {
         if ($quantity < 1) {
             $this->removeFromCart($cartId);
+
             return;
         }
 
@@ -90,6 +94,7 @@ class CartManager extends Component
         // Validasi cart tidak kosong
         if ($this->carts->isEmpty()) {
             $this->dispatch('showToast', ['message' => 'Cart is empty', 'type' => 'error']);
+
             return;
         }
 
@@ -101,7 +106,7 @@ class CartManager extends Component
                 return $item->price * $item->quantity;
             }),
             'status' => 'pending',
-            'notes' => $this->notes
+            'notes' => $this->notes,
         ]);
 
         // Tambahkan order items
@@ -109,7 +114,7 @@ class CartManager extends Component
             $order->items()->create([
                 'product_id' => $cart->product_id,
                 'quantity' => $cart->quantity,
-                'price' => $cart->price
+                'price' => $cart->price,
             ]);
         }
 

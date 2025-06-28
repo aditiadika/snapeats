@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TableResource\Pages;
 use App\Models\Branch;
 use App\Models\Table as TableModel;
-use Filament\Tables\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;

@@ -11,12 +11,16 @@ use Livewire\Component;
 class MenuList extends Component
 {
     public $tableId;
+
     public $qrCode;
+
     // public $search = '';
     public $activeCategory = 'all';
+
     public $categories = [];
 
     public array $search = [];
+
     public array $carts = [];
 
     public function mount($qrCode)
@@ -35,7 +39,7 @@ class MenuList extends Component
                 $query->where('category_id', $this->activeCategory);
             })
             ->when($this->search, function ($query) {
-                $query->where('name', 'ilike', '%' . $this->search . '%');
+                $query->where('name', 'ilike', '%'.$this->search.'%');
             })
             ->where('is_active', true)
             ->get();
@@ -47,7 +51,7 @@ class MenuList extends Component
         return view('livewire.menu-list', [
             'menus' => $products,
             'categories' => $this->categories,
-            'tableId' => $table->id
+            'tableId' => $table->id,
         ]);
     }
 
