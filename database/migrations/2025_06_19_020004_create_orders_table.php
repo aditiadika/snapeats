@@ -21,9 +21,11 @@ return new class extends Migration
             $table->foreignIdFor(Branch::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Table::class)->nullable()->constrained()->cascadeOnDelete();
             $table->string('customer_name')->nullable();
+            $table->string('type')->nullable();
             $table->string('status')->default('pending');
             $table->decimal('total_amount', 10, 2);
             $table->text('notes')->nullable();
+            $table->string('created_by')->nullable();
             $table->timestamps();
         });
     }

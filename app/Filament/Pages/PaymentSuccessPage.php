@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Order;
 use Filament\Pages\Page;
 
 class PaymentSuccessPage extends Page
@@ -14,14 +15,14 @@ class PaymentSuccessPage extends Page
 
     public $checkout;
 
-    public function mount($orderId): void
+    public function mount(): void
     {
-        dd($orderId);
-        $this->checkout = $order;
-        dd($this->checkout);
+        $orderId = request()->query('order_id');
 
-        if (! $this->checkout) {
+        if (! $orderId) {
             abort(403, 'Tidak ada data transaksi.');
         }
+
+        $this->checkout = Order::with('items', 'payments')->findOrFail($orderId);
     }
 }

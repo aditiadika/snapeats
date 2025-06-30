@@ -23,6 +23,8 @@ class Order extends Model
         'status',
         'total_amount',
         'notes',
+        'type',
+        'created_by',
     ];
 
     /**
@@ -41,5 +43,10 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

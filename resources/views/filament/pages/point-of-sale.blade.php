@@ -79,6 +79,11 @@
                         <label class="text-sm font-medium text-gray-700">Customer Name</label>
                         <input type="text" wire:model="customerName" class="w-full border rounded px-3 py-2 mt-1"
                             placeholder="e.g. Robert Taylor" />
+                        <div>
+                            @error('customerName')
+                                {{ $message }}
+                            @enderror
+                        </div>
                     </div>
                     <div class="mb-4">
                         <label class="text-sm font-medium text-gray-700">Type <span
@@ -90,6 +95,9 @@
                                 <option value="{{ $type }}">{{ $type }}</option>
                             @endforeach
                         </select>
+                        @error('selectedType')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     @if ($selectedType === 'Dine in')

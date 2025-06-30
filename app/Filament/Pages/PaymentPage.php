@@ -2,8 +2,10 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Payment;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -41,7 +43,7 @@ class PaymentPage extends Page
 
         if ($this->paymentMethod === 'split') {
             $splitTotal = (int) $this->splitCash + (int) $this->splitQris;
-            if ($splitTotal !== (int) $this->checkout['total']) {
+            if ($splitTotal !== (int) $checkout['total']) {
                 $this->addError('split', 'Total split payment harus sama dengan total tagihan.');
 
                 return;
@@ -55,21 +57,23 @@ class PaymentPage extends Page
             return;
         }
 
-        $order = DB::transaction(function () {
+        $order = DB::transaction(function () use ($checkout) {
 
             $order = Order::create([
-                'trx_no' => 'TRX-'.now()->format('YmdHis'),
+                'trx_no' => 'TRX-' . now()->format('YmdHis'),
                 'entity_id' => auth()->user()->entity_id,
-                'branch_id' => $this->checkout['branch_id'],
-                'table_id' => $this->checkout['table_id'],
-                'customer_name' => $this->checkout['customer_name'],
-                'total_amount' => $this->checkout['total'],
+                'branch_id' => $checkout['branch_id'],
+                'table_id' => $checkout['table_id'],
+                'customer_name' => $checkout['customer_name'],
+                'total_amount' => $checkout['total'],
+                'type' => $checkout['type'],
+                'created_by' => auth()->user()->name,
             ]);
 
             $order->items()->createMany($this->checkout['items']);
 
             Payment::create([
-                'trx_no' => 'PAY/'.$order->trx_no,
+                'trx_no' => 'PAY/' . $order->trx_no,
                 'order_id' => $order->id,
                 'total' => $this->checkout['total'],
                 'payment_method' => $this->paymentMethod,
@@ -79,12 +83,18 @@ class PaymentPage extends Page
 
             Session::forget('checkout_data');
 
+            Cart::with('product')
+                ->where('user_id', auth()->id())
+                ->delete();
+
+            Notification::make()
+                ->title('Transaction Success')
+                ->success()
+                ->send();
+
             return $order;
         });
 
-        // Redirect ke halaman sukses
-        // return Redirect::to('/payment-success'); // atau route filament yang kamu punya
-
-        $this->redirectRoute('filament.admin.pages.payment-success-page', ['order' => $order->id]);
+        $this->redirectRoute('filament.admin.pages.payment-success-page', ['order_id' => $order->id]);
     }
 }

@@ -13,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Session;
+use Livewire\Attributes\Validate;
 
 class PointOfSale extends Page
 {
@@ -35,6 +36,7 @@ class PointOfSale extends Page
 
     public $search = '';
 
+    #[Validate]
     public $customerName;
 
     public $tableNo;
@@ -51,6 +53,7 @@ class PointOfSale extends Page
 
     public $types = ['Dine in', 'Take away', 'Delivery'];
 
+    #[Validate]
     public string $selectedType = '';
 
     public $tables;
@@ -60,6 +63,14 @@ class PointOfSale extends Page
     public $categories = [];
 
     public $selectedCategoryId = null; // Ganti dari selectedCategory
+
+    protected function rules()
+    {
+        return [
+            'customerName' => 'required',
+            'selectedType' => 'required|in:Dine in,Take away,Delivery',
+        ];
+    }
 
     public function selectBranch($branchId)
     {
@@ -104,7 +115,7 @@ class PointOfSale extends Page
                 $query->where('category_id', $this->selectedCategoryId);
             })
             ->when($this->search, function ($query) {
-                $query->where('name', 'ilike', '%'.$this->search.'%');
+                $query->where('name', 'ilike', '%' . $this->search . '%');
             })
             ->get();
     }
@@ -118,7 +129,7 @@ class PointOfSale extends Page
                 return [
                     'id' => $item->id,
                     'product_id' => $item->product_id,
-                    'name' => $item->product->name,
+                    'name' => optional($item->product)->name,
                     'quantity' => $item->quantity,
                     'price' => $item->price,
                     'total' => $item->quantity * $item->price,
@@ -174,25 +185,7 @@ class PointOfSale extends Page
 
     public function checkout(): void
     {
-        // $order = Order::create([
-        //     'entity_id' => auth()->user()->entity_id,
-        //     'branch_id' => $this->selectedBranchId,
-        //     'table_id' => $this->selectedTableId,
-        //     'customer_name' => $this->customerName,
-        //     'table_no' => $this->tableNo,
-        //     'total_amount' => $this->total,
-        //     'payment_method' => 'cash',
-        // ]);
-
-        // $order->items()->createMany($this->cart);
-
-        // Cart::where('user_id', auth()->id())->delete();
-
-        // $this->reset(['cart', 'customerName', 'tableNo', 'search']);
-        // $this->loadProducts();
-        // $this->calculateTotals();
-
-        // $this->dispatch('notify', title: 'Transaksi berhasil diproses');
+        $this->validate();
 
         // Simpan cart ke session atau database
         Session::put('checkout_data', [

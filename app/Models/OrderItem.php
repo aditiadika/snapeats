@@ -20,6 +20,7 @@ class OrderItem extends Model
         'quantity',
         'price',
         'notes',
+        'name'
     ];
 
     /**
